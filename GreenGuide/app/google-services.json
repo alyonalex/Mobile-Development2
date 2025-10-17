@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "644164956457",
+    "project_id": "greenguide-7b67f",
+    "storage_bucket": "greenguide-7b67f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644164956457:android:39f4c73feea3a224794738",
+        "android_client_info": {
+          "package_name": "ru.mirea.krasikova.greenguide"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMDbLrtM9CkJcuxyr-lH5QVoaxuhsk21o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

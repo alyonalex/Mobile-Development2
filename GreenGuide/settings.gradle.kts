@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "GreenGuide"
 include(":app")
- 
+include(":data")
+include(":domain")
