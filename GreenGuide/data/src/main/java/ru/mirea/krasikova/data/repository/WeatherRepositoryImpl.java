@@ -19,11 +19,6 @@ public class WeatherRepositoryImpl implements WeatherRepository {
 
     @Override
     public WeatherInfo getCurrentWeather(double lat, double lon) {
-        try {
-            String response = api.getCurrentWeather(lat, lon).execute().body();
-            return new WeatherInfo(20.5, "Солнечно");
-        } catch (Exception e) {
-            return new WeatherInfo(0, "Ошибка: " + e.getMessage());
-        }
+        return new WeatherInfo("Москва","Россия", 20.5, 5.2);
     }
 }

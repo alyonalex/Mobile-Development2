@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.mirea.krasikova.data.model.PlantEntity;
+import ru.mirea.krasikova.data.storage.FakePlantStorage;
 import ru.mirea.krasikova.data.storage.PlantStorage;
 import ru.mirea.krasikova.domain.model.Plant;
 import ru.mirea.krasikova.domain.repository.PlantRepository;
@@ -11,8 +12,8 @@ import ru.mirea.krasikova.domain.repository.PlantRepository;
 public class PlantRepositoryImpl implements PlantRepository {
     private final PlantStorage plantStorage;
 
-    public PlantRepositoryImpl(PlantStorage plantStorage) {
-        this.plantStorage = plantStorage;
+    public PlantRepositoryImpl() {
+        this.plantStorage = new FakePlantStorage();
     }
 
     @Override

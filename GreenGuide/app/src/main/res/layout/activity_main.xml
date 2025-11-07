@@ -5,24 +5,60 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp"
-    android:background="#F9FBE7">
+    android:background="#fdfff5">
 
     <TextView
-        android:id="@+id/userStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GreenGuide"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#80a336"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/userRoleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Статус пользователя"
-        android:textColor="#33691E"
+        android:textColor="#666666"
         android:textSize="18sp"
         android:layout_marginBottom="24dp"
         android:gravity="center" />
 
     <Button
-        android:id="@+id/logoutButton"
+        android:id="@+id/btnPlants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Список растений"
+        android:textAllCaps="false"
+        android:backgroundTint="#80a336"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btnWeather"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Погода"
+        android:textAllCaps="false"
+        android:backgroundTint="#80a336"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btnRecognize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Распознать фото"
+        android:textAllCaps="false"
+        android:backgroundTint="#80a336"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#bcdc97"
         android:text="Выйти"
         android:textAllCaps="false"
-        android:backgroundTint="#8BC34A"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/black" />
 </LinearLayout>

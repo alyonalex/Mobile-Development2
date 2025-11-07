@@ -13,6 +13,12 @@
         android:theme="@style/Theme.GreenGuide"
         tools:targetApi="31">
         <activity
+            android:name=".weather.WeatherActivity"
+            android:exported="false" />
+        <activity
+            android:name=".plants.PlantListActivity"
+            android:exported="false" />
+        <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity

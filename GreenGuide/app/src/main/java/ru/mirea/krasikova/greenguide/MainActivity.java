@@ -12,11 +12,15 @@ import ru.mirea.krasikova.greenguide.R;
 import ru.mirea.krasikova.data.repository.AuthRepositoryImpl;
 import ru.mirea.krasikova.domain.repository.AuthRepository;
 import ru.mirea.krasikova.greenguide.LoginActivity;
+import ru.mirea.krasikova.greenguide.plants.PlantListActivity;
+import ru.mirea.krasikova.greenguide.weather.WeatherActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView userStatusText;
-    private Button logoutButton;
+    private Button btnLogout;
+    private Button btnPlants;
+    private Button btnWeather;
 
     private AuthRepository authRepository;
     private FirebaseAuth firebaseAuth;
@@ -26,8 +30,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        userStatusText = findViewById(R.id.userStatusText);
-        logoutButton = findViewById(R.id.logoutButton);
+        userStatusText = findViewById(R.id.userRoleText);
+        btnLogout = findViewById(R.id.btnLogout);
+        btnPlants = findViewById(R.id.btnPlants);
+        btnWeather = findViewById(R.id.btnWeather);
 
         authRepository = new AuthRepositoryImpl(this);
         firebaseAuth = FirebaseAuth.getInstance();
@@ -46,8 +52,20 @@ public class MainActivity extends AppCompatActivity {
             authRepository.saveUserType("guest");
         }
 
+        // Переход к списку растений
+        btnPlants.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, PlantListActivity.class);
+            startActivity(intent);
+        });
+
+        // Переход к экрану погоды
+        btnWeather.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, WeatherActivity.class);
+            startActivity(intent);
+        });
+
         // Обработка выхода
-        logoutButton.setOnClickListener(v -> {
+        btnLogout.setOnClickListener(v -> {
             firebaseAuth.signOut();
             authRepository.logout();
             Toast.makeText(this, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show();

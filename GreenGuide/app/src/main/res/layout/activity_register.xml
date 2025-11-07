@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="24dp"
-    android:background="#F5F5F5">
+    android:background="#fdfff5">
 
     <TextView
         android:layout_width="wrap_content"
@@ -13,7 +13,7 @@
         android:text="Регистрация"
         android:textSize="28sp"
         android:textStyle="bold"
-        android:textColor="#8BC34A"
+        android:textColor="#80a336"
         android:layout_marginBottom="24dp" />
 
     <EditText
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:text="Зарегистрироваться"
         android:textAllCaps="false"
-        android:backgroundTint="#8BC34A"
+        android:backgroundTint="#80a336"
         android:textColor="@android:color/white"
         android:layout_marginBottom="16dp" />
 
@@ -50,7 +50,7 @@
         android:id="@+id/backToLoginButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Назад к входу"
+        android:text="Назад ко входу"
         android:textAllCaps="false"
         android:backgroundTint="#bcdc97"
         android:textColor="@android:color/black" />
