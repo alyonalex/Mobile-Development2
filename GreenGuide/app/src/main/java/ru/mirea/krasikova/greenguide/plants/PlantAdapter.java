@@ -20,6 +20,15 @@ import ru.mirea.krasikova.greenguide.R;
 public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.PlantViewHolder> {
 
     private final List<Plant> plants = new ArrayList<>();
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Plant plant);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public void submitList(List<Plant> newPlants) {
         plants.clear();
@@ -41,6 +50,12 @@ public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.PlantViewHol
     public void onBindViewHolder(@NonNull PlantViewHolder holder, int position) {
         Plant plant = plants.get(position);
         holder.bind(plant);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(plant);
+            }
+        });
     }
 
     @Override
@@ -60,8 +75,6 @@ public class PlantAdapter extends RecyclerView.Adapter<PlantAdapter.PlantViewHol
 
         public void bind(Plant plant) {
             plantName.setText(plant.getName());
-
-            // Загрузка изображения по ссылке
             Glide.with(itemView.getContext())
                     .load(plant.getImageUrl())
                     .placeholder(R.drawable.ic_launcher_foreground)

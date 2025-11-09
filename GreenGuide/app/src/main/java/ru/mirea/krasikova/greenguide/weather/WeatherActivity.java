@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import ru.mirea.krasikova.greenguide.MainActivity;
 import ru.mirea.krasikova.greenguide.R;
+import ru.mirea.krasikova.greenguide.plants.PlantListActivity;
 import ru.mirea.krasikova.greenguide.weather.WeatherViewModel;
 import ru.mirea.krasikova.greenguide.weather.WeatherViewModelFactory;
 
@@ -21,7 +22,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView countryText;
     private TextView temperatureText;
     private TextView windSpeedText;
-    private Button btnBackToMainMenu;
+    private TextView errorText;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,22 +33,36 @@ public class WeatherActivity extends AppCompatActivity {
         countryText = findViewById(R.id.countryText);
         temperatureText = findViewById(R.id.temperatureText);
         windSpeedText = findViewById(R.id.windSpeedText);
-        btnBackToMainMenu = findViewById(R.id.btnBackToMainMenu);
+        errorText = findViewById(R.id.errorText);
+
 
         WeatherViewModelFactory factory = new WeatherViewModelFactory();
         viewModel = new ViewModelProvider(this, factory).get(WeatherViewModel.class);
 
-        // Пример координат
-        viewModel.setCoordinates(55.751244, 37.618423); // Москва
 
         viewModel.getWeatherLiveData().observe(this, weatherInfo -> {
-            cityText.setText("Город: " + weatherInfo.getCity());
-            countryText.setText("Страна: " + weatherInfo.getCountry());
-            temperatureText.setText("Температура: " + weatherInfo.getTemperature() + "°C");
-            windSpeedText.setText("Скорость ветра: " + weatherInfo.getWindSpeed() + " м/с");
+            if (weatherInfo != null) {
+                cityText.setText("Город: " + weatherInfo.getCity());
+                countryText.setText("Страна: " + weatherInfo.getCountry());
+                temperatureText.setText(String.format("Температура: %.1f°C", weatherInfo.getTemperature()));
+                windSpeedText.setText(String.format("Ветер: %.1f м/с", weatherInfo.getWindSpeed()));
+            }
         });
 
-        btnBackToMainMenu.setOnClickListener(v -> {
+
+        viewModel.getErrorLiveData().observe(this, errorMessage -> {
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                errorText.setText("Ошибка: " + errorMessage);
+            } else {
+                errorText.setText("");
+            }
+        });
+
+
+        viewModel.loadWeatherByIp();
+
+        Button backButton = findViewById(R.id.btnBackToMainMenu);
+        backButton.setOnClickListener(v -> {
             Intent intent = new Intent(WeatherActivity.this, MainActivity.class);
             startActivity(intent);
             finish();

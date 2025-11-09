@@ -6,8 +6,6 @@ import ru.mirea.krasikova.domain.model.Plant;
 
 public interface PlantRepository {
     List<Plant> getPlants();
-
     Plant getPlantById(int id);
-
-    boolean addPlant(Plant plant);
+    void addPlant(Plant plant);
 }

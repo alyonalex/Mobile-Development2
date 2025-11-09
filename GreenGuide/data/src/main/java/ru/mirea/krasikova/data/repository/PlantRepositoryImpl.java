@@ -1,10 +1,12 @@
 package ru.mirea.krasikova.data.repository;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import ru.mirea.krasikova.data.model.PlantEntity;
-import ru.mirea.krasikova.data.storage.FakePlantStorage;
+import ru.mirea.krasikova.data.storage.AppDatabase;
 import ru.mirea.krasikova.data.storage.PlantStorage;
 import ru.mirea.krasikova.domain.model.Plant;
 import ru.mirea.krasikova.domain.repository.PlantRepository;
@@ -12,8 +14,9 @@ import ru.mirea.krasikova.domain.repository.PlantRepository;
 public class PlantRepositoryImpl implements PlantRepository {
     private final PlantStorage plantStorage;
 
-    public PlantRepositoryImpl() {
-        this.plantStorage = new FakePlantStorage();
+    public PlantRepositoryImpl(Context context) {
+        AppDatabase db = AppDatabase.getInstance(context);
+        this.plantStorage = db.plantStorage();
     }
 
     @Override
@@ -34,13 +37,13 @@ public class PlantRepositoryImpl implements PlantRepository {
     }
 
     @Override
-    public boolean addPlant(Plant plant) {
+    public void addPlant(Plant plant) {
         PlantEntity entity = new PlantEntity();
         entity.name = plant.getName();
         entity.description = plant.getDescription();
         entity.imageUrl = plant.getImageUrl();
         entity.dateAdded = plant.getDateAdded();
-        plantStorage.insert(entity);
-        return true;
+
+        AppDatabase.getDatabaseWriteExecutor().execute(() -> plantStorage.insert(entity));
     }
 }

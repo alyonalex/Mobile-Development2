@@ -9,6 +9,7 @@ public class GetPlantsUseCase {
     private final PlantRepository repository;
 
     public GetPlantsUseCase(PlantRepository repository) {
+
         this.repository = repository;
     }
 

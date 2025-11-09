@@ -10,7 +10,8 @@ public class AddPlantUseCase {
         this.repository = repository;
     }
 
-    public boolean execute(Plant plant) {
-        return repository.addPlant(plant);
+    public void execute(Plant plant) {
+        repository.addPlant(plant);
     }
 }
+

@@ -1,0 +1,73 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="#fdfff5" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GreenGuide"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#80a336"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:gravity="center"
+        android:text="ДОБАВЛЕНИЕ НОВОГО РАСТЕНИЯ"
+        android:textColor="#666666"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/inputPlantName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Название растения"
+        android:inputType="textCapSentences|textMultiLine"
+        android:imeOptions="actionNext"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/inputPlantImageUrl"
+        android:hint="Ссылка на изображение"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="actionNext"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/inputPlantDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Описание"
+        android:inputType="textCapSentences|textMultiLine"
+        android:imeOptions="actionDone"
+        android:minLines="3"
+        android:gravity="top"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnSavePlant"
+        android:text="Сохранить"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#80a336"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:text="Отмена"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#bcdc97"
+        android:textColor="@android:color/black" />
+
+</LinearLayout>

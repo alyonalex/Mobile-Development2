@@ -59,7 +59,15 @@
         android:text="Скорость ветра: "
         android:textSize="18sp"
         android:textColor="#666666"
-        android:layout_marginBottom="40dp" />
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="16sp"
+        android:layout_marginBottom="20dp" />
 
     <Button
         android:id="@+id/btnBackToMainMenu"

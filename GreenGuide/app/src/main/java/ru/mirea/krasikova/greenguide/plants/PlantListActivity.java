@@ -21,7 +21,6 @@ public class PlantListActivity extends AppCompatActivity {
 
     private PlantListViewModel viewModel;
     private PlantAdapter adapter;
-    private Button btnBackToMainMenu;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,31 +30,37 @@ public class PlantListActivity extends AppCompatActivity {
         SharedPrefsUserStorage userStorage = new SharedPrefsUserStorage(this);
         String userType = userStorage.getUserType();
 
-        // RecyclerView и Adapter
         RecyclerView recyclerView = findViewById(R.id.plantsRecycler);
         adapter = new PlantAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // ViewModel через Factory
-        PlantListViewModelFactory factory = new PlantListViewModelFactory();
+        PlantListViewModelFactory factory = new PlantListViewModelFactory(this);
         viewModel = new ViewModelProvider(this, factory).get(PlantListViewModel.class);
 
-        // Подписка на LiveData для отображения списка растений
         viewModel.getPlantsLiveData().observe(this, plants -> {
             adapter.submitList(plants);
         });
 
-        // Кнопка добавления растения
-        FloatingActionButton addButton = findViewById(R.id.addPlantButton);
+        //Просмотр конкретного растения
+        adapter.setOnItemClickListener(plant -> {
+            Intent intent = new Intent(PlantListActivity.this, PlantDetailActivity.class);
+            intent.putExtra("plant_id", plant.getId());
+            startActivity(intent);
+        });
 
+
+        FloatingActionButton addButton = findViewById(R.id.addPlantButton);
         if (!userType.equals("authorized")) {
             addButton.setVisibility(View.GONE);
         }
 
+        //переход к экрану добавления
         addButton.setOnClickListener(v -> {
-            // Добавление нового растения будет реализовано позже
+            Intent intent = new Intent(PlantListActivity.this, AddPlantActivity.class);
+            startActivity(intent);
         });
+
 
         Button backButton = findViewById(R.id.btnBackToMainMenu);
         backButton.setOnClickListener(v -> {
@@ -63,6 +68,11 @@ public class PlantListActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.loadPlants(); // обновить список после добавления нового растения
     }
 }

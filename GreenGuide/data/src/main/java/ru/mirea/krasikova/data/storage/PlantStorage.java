@@ -1,12 +1,13 @@
 package ru.mirea.krasikova.data.storage;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import java.util.List;
 import ru.mirea.krasikova.data.model.PlantEntity;
-
 @Dao
 public interface PlantStorage {
     @Query("SELECT * FROM plants")
@@ -18,3 +19,4 @@ public interface PlantStorage {
     @Insert
     void insert(PlantEntity plant);
 }
+

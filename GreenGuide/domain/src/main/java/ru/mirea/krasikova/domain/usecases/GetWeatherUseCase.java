@@ -10,7 +10,24 @@ public class GetWeatherUseCase {
         this.repository = repository;
     }
 
-    public WeatherInfo execute(double lat, double lon) {
-        return repository.getCurrentWeather(lat, lon);
+
+    public void execute(Callback callback) {
+        repository.getWeatherByIp(new WeatherRepository.RepositoryCallback<WeatherInfo>() {
+            @Override
+            public void onSuccess(WeatherInfo info) {
+                callback.onSuccess(info);
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    public interface Callback {
+        void onSuccess(WeatherInfo weatherInfo);
+        void onError(String errorMessage);
     }
 }
+
