@@ -57,14 +57,25 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(project(":domain"))
     implementation(project(":data"))
+
+    //Glide
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
+
+    // Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
+    //Retrofit
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
-    implementation ("androidx.room:room-runtime:2.5.2")
-    kapt ("androidx.room:room-compiler:2.5.2")
-    implementation ("androidx.room:room-ktx:2.5.2")
+    // Библиотека фрагментов
+    implementation ("androidx.fragment:fragment-ktx:1.8.3")
 
+    //Навигация между фрагментами
+    implementation ("androidx.navigation:navigation-fragment-ktx:2.8.3")
+    implementation ("androidx.navigation:navigation-ui-ktx:2.8.3")
 
 }

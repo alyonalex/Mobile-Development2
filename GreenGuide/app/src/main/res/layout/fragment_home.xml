@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#fdfff5">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GreenGuide"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#80a336"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="ДОБРО ПОЖАЛОВАТЬ!"
+        android:textColor="#666666"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/btnPlants"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Список растений"
+        android:textAllCaps="false"
+        android:backgroundTint="#80a336"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btnWeather"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Погода"
+        android:textAllCaps="false"
+        android:backgroundTint="#80a336"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btnProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#bcdc97"
+        android:text="Профиль"
+        android:textAllCaps="false"
+        android:textColor="@android:color/black" />
+</LinearLayout>

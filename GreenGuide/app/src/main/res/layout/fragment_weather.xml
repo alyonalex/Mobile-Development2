@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#fdfff5">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GreenGuide"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#80a336"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="ПОГОДА СЕЙЧАС"
+        android:textColor="#666666"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/cityText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Город: "
+        android:textSize="18sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/countryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Страна: "
+        android:textSize="18sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/temperatureText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Температура: "
+        android:textSize="18sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/windSpeedText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Скорость ветра: "
+        android:textSize="18sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="16sp"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/btnBackToMainMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Назад"
+        android:textAllCaps="false"
+        android:backgroundTint="#80a336"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>
