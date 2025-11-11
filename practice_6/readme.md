@@ -1,546 +1,431 @@
-Отчёт по 5 практической работе
+Отчёт по 6 практической работе
 ----
-В рамках данной практической работы была рассмотрена библиотека Retrofit, используемая для работы с сетевыми данными, а также библиотеки Picasso и Glide, используемые для обработки изображений. 
+В рамках данной практической работы был изучен принцип работы с фрагментами (Fragment), который является важным компонентом Android-приложений. 
 
-RetrofitApp
+FragmentApp
 ---
-Для работы был создан новый модуль. В манифест файл добавлено разрешение на использование интернета.
-```xml
-<uses-permission android:name="android.permission.INTERNET"
+Для работы был создан новый модуль. В gradle файл модуля добавлена новая зависимость для работы с фрагментами.
+```java
+implementation("androidx.fragment:fragment:1.8.9")
 ```
-Далее была создана модель POJO 
+Далее был создан фрагмент, который принимает номер по списку и отображает его в TextView.
 ```JAVA
-public class Todo {
+public class BlankFragment extends Fragment {
 
-    @SerializedName("userId")
-    @Expose
-    private Integer userId;
-
-    @SerializedName("id")
-    @Expose
-    private Integer id;
-
-    @SerializedName("title")
-    @Expose
-    private String title;
-
-    @SerializedName("completed")
-    @Expose
-    private Boolean completed;
-
-    public Todo() {
-    }
-
-    public Todo(Boolean completed) {
-        this.completed = completed;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Boolean getCompleted() {
-        return completed;
-    }
-
-    public void setCompleted(Boolean completed) {
-        this.completed = completed;
-    }
-}
-```
-Создан интерфейс ApiService, в котором описан GET-запрос к серверу для получения данных.
-```java
-public interface ApiService {
-    @GET("todos")
-    Call<List<Todo>> getTodos();
-
-    @PATCH("todos/{id}")
-    Call<Todo> updateTodo(
-            @Path("id") int todoId,
-            @Body Todo todo
-    );
-}
-```
-Также создан вспомогательный компонент - TodoAdapter, который управляет элементами списка и отвечает за преобразование данных в элементы UI. Для реализации второй части задания в данный класс добавлена инициализация строкового массива с ссылками на изображения и обработка данных изображений при помощи Picasso.
-```java
-public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.TodoViewHolder> {
-
-    private List<Todo> todoList;
-    private ApiService apiService;
-
-    private static final String[] IMAGE_URLS = {
-            "https://images-na.ssl-images-amazon.com/images/I/71zTLlqhDEL._AC_SL1200_.jpg",
-            "https://avatars.mds.yandex.net/i?id=d3d10a35f0b68200db004ff516732f84cafb3322-8211098-images-thumbs&ref=rim&n=33&w=263&h=250",
-            "https://i.pinimg.com/originals/1a/a8/bd/1aa8bdcced83056066833fe6e2934514.png",
-            "https://thumbs.dreamstime.com/b/sticker-note-pin-13549913.jpg"
-    };
-
-    public TodoAdapter(List<Todo> todoList, ApiService apiService) {
-        this.todoList = todoList;
-        this.apiService = apiService;
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
+        Log.d(BlankFragment.class.getSimpleName(), "onCreateView");
+        View view   =  inflater.inflate(R.layout.fragment_blank,  container, false);
+        return  view;
     }
 
     @Override
-    public TodoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
-        return new TodoViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(TodoViewHolder holder, int position) {
-        Todo todo = todoList.get(position);
-        holder.textViewTitle.setText(todo.getTitle());
-
-        holder.checkBoxCompleted.setOnCheckedChangeListener(null);
-        holder.checkBoxCompleted.setChecked(Boolean.TRUE.equals(todo.getCompleted()));
-
-        int base = (todo.getId() != null ? todo.getId() : position);
-        String imageUrl = IMAGE_URLS[ Math.abs(base) % IMAGE_URLS.length ];
-
-        Picasso.get()
-                .load(imageUrl)
-                .placeholder(R.mipmap.ic_launcher)
-                .error(R.mipmap.ic_launcher)
-                .resize(64, 64)
-                .centerCrop()
-                .into(holder.imageTodo);
-
-        holder.checkBoxCompleted.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            int adapterPosition = holder.getBindingAdapterPosition();
-            if (adapterPosition == RecyclerView.NO_POSITION) {
-                return;
-            }
-
-            Todo updatedTodo = new Todo(isChecked);
-
-            Call<Todo> call = apiService.updateTodo(todo.getId(), updatedTodo);
-            call.enqueue(new Callback<>() {
-                @Override
-                public void onResponse(Call<Todo> call, Response<Todo> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        Log.d("TodoAdapter", "Todo " + todo.getId() + " updated successfully!");
-                        todoList.get(adapterPosition).setCompleted(response.body().getCompleted());
-                        notifyItemChanged(adapterPosition);
-                    } else {
-                        Log.e("TodoAdapter", "Failed to update todo. Code: " + response.code());
-                        buttonView.setChecked(!isChecked);
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Todo> call, Throwable t) {
-                    Log.e("TodoAdapter", "Network error on update: " + t.getMessage());
-                    buttonView.setChecked(!isChecked);
-                }
-            });
-        });
-    }
-
-    @Override
-    public int getItemCount() {
-        return todoList.size();
-    }
-
-    public static class TodoViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageTodo;
-        TextView textViewTitle;
-        CheckBox checkBoxCompleted;
-
-        public TodoViewHolder(View itemView) {
-            super(itemView);
-            imageTodo = itemView.findViewById(R.id.imageTodo);
-            textViewTitle = itemView.findViewById(R.id.textViewTitle);
-            checkBoxCompleted = itemView.findViewById(R.id.checkBoxCompleted);
-        }
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        int numberStudent = requireArguments().getInt("my_number_student", 0);
+        Log.d(BlankFragment.class.getSimpleName(), String.valueOf(numberStudent));
+        TextView tv = view.findViewById(R.id.textNumber);
+        tv.setText("Номер по списку: " + numberStudent);
     }
 }
 ```
-В MainActivity был создан экземпляр Retrofit. Настроено асинхронное выполнение запроса с использованием метода enqueue() и обработка ответа от сервера. Инициализирован адаптер для управления элементами списка.
+Далее в MainActivity была реализована логика добавления данного фрагмента с использованием метода newInstance(). Данные передаются с помощью Bundle.
+
 ```java
 public class MainActivity extends AppCompatActivity {
 
-    private static String TAG = "MainActivity";
-    private static String BASE_URL = "https://jsonplaceholder.typicode.com/";
-
-    private RecyclerView recyclerView;
-    private TodoAdapter todoAdapter;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        if (savedInstanceState == null) {
+            Bundle args = new Bundle();
+            args.putInt("my_number_student", 15);
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+            getSupportFragmentManager().beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.fragment_container_view, BlankFragment.class, args)
+                    .commit();
+        }
+    }
+}
+```
 
-        ApiService apiService = retrofit.create(ApiService.class);
+**Приложение после запуска работает корректно:**
 
-        Call<List<Todo>> call = apiService.getTodos();
+<img width="451" height="815" alt="Снимок экрана 2025-11-11 112730" src="https://github.com/user-attachments/assets/23f5345a-03a4-410f-b7d9-d8291232e043" />
 
-        call.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<List<Todo>> call, Response<List<Todo>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    List<Todo> todos = response.body();
-                    todoAdapter = new TodoAdapter(todos, apiService);
-                    recyclerView.setAdapter(todoAdapter);
-                } else {
-                    Log.e(TAG, "onResponse: " + response.code());
-                    Toast.makeText(MainActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
+FragmentManagerApp
+---
+Для работы был создан новый модуль. 
+Разработаны два фрагмента: HeaderFragment, который содержит список стран и DetailsFragment, который необходим для отображения информации о выбранной стране.
 
-            @Override
-            public void onFailure(Call<List<Todo>> call, Throwable t) {
-                Log.e(TAG, "onFailure: " + t.getMessage());
-                Toast.makeText(MainActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+**HeaderFragment**
+```java
+public class HeaderFragment extends Fragment {
+    private SharedViewModel viewModel;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_header, container, false);
+    }
+
+    @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+        ListView listView = view.findViewById(R.id.listView);
+
+        String[] countries = {"Венгрия", "Великобритания", "Германия", "Испания", "Канада", "Марокко",
+                "Норвегия", "Португалия", "Россия", "Турция", "ОАЭ", "Уругвай", "Франция"};
+        listView.setAdapter(new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_list_item_1, countries));
+
+        listView.setOnItemClickListener((AdapterView<?> parent, View v, int pos, long id) ->
+                viewModel.setSomeValue(countries[pos]));
+    }
+}
+```
+**DetailsFragment**
+```java
+public class DetailsFragment extends Fragment {
+    private SharedViewModel viewModel;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_details, container, false);
+    }
+
+    @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        TextView tv = view.findViewById(R.id.textDetails);
+
+        viewModel.getSomeValue().observe(getViewLifecycleOwner(), data -> {
+            Log.d(DetailsFragment.class.getSimpleName(), data);
+            tv.setText("Вы выбрали страну: " + data);
+        });
+    }
+}
+```
+Связь между данными фрагментами реализована при помощи **SharedViewModel**, экземпляр которой создаётся в обоих классах.
+```java
+public class SharedViewModel extends ViewModel {
+    private final MutableLiveData<String> selectedItem = new MutableLiveData<>();
+    public void setSomeValue(String item) {
+        selectedItem.setValue(item);
+    }
+    public LiveData<String> getSomeValue() {
+        return selectedItem;
+    }
+}
+```
+
+**Приложение после запуска отображает список стран:**
+
+<img width="463" height="818" alt="Снимок экрана 2025-11-11 112554" src="https://github.com/user-attachments/assets/6da48573-ce70-4f64-8868-92405b99e49d" />
+
+
+**При клике на страну в нижней части экрана выводится её название:**
+
+<img width="448" height="823" alt="Снимок экрана 2025-11-11 112650" src="https://github.com/user-attachments/assets/28e9b87f-e228-4b88-8c44-0810078ee8cf" />
+
+Далее реализация этого задания была немного изменена. Была создана отдельная модель, которая описывает поля: страна, столица и численность населения.
+```java
+public class Country {
+    private final String name;
+    private final String capital;
+    private final int population;
+
+    public Country(String name, String capital, int population) {
+        this.name = name;
+        this.capital = capital;
+        this.population = population;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getCapital() {
+        return capital;
+    }
+
+    public int getPopulation() {
+        return population;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}
+```
+CountryViewModel для передачи данных между фрагментами:
+```java
+public class CountryViewModel extends ViewModel {
+    private final MutableLiveData<Country> selectedCountry = new MutableLiveData<>();
+
+    public void selectCountry(Country country) {
+        selectedCountry.setValue(country);
+    }
+
+    public LiveData<Country> getSelectedCountry() {
+        return selectedCountry;
+    }
+}
+```
+В HeaderFragment теперь не создаётся строковый массив данных, а создаётся экземпляр класса Country в формате списка, который заполняется соответствующими данными.
+```java
+public class HeaderFragment extends Fragment {
+
+    private CountryViewModel viewModel;
+    private List<Country> countries;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        viewModel = new ViewModelProvider(requireActivity()).get(CountryViewModel.class);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_header, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        countries = new ArrayList<>();
+        countries.add(new Country("Венгрия", "Будапешт", 9603634 ));
+        countries.add(new Country("Германия", "Берлин", 83491249));
+        countries.add(new Country("Испания", "Мадрид", 49315949));
+        countries.add(new Country("Россия", "Москва", 146119928));
+        countries.add(new Country("Португалия", "Лиссабон", 10467366));
+        countries.add(new Country("Франция", "Париж", 67421162));
+
+        ListView listView = view.findViewById(R.id.countriesListView);
+
+        ArrayAdapter<Country> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                countries
+        );
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener((parent, itemView, position, id) -> {
+            Country selectedMovie = countries.get(position);
+
+            viewModel.selectCountry(selectedMovie);
+
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container_view, DetailsFragment.class, null)
+                    .setReorderingAllowed(true)
+                    .addToBackStack(null)
+                    .commit();
+        });
+    }
+}
+```
+**DetailsFragment**
+```java
+public class DetailsFragment extends Fragment {
+
+    private CountryViewModel viewModel;
+    private TextView nameTextView;
+    private TextView capitalTextView;
+    private TextView populationTextView;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(requireActivity()).get(CountryViewModel.class);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_details, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        nameTextView = view.findViewById(R.id.nameTextView);
+        capitalTextView = view.findViewById(R.id.capitalTextView);
+        populationTextView = view.findViewById(R.id.populationTextView);
+
+        viewModel.getSelectedCountry().observe(getViewLifecycleOwner(), country -> {
+            if (country != null) {
+                nameTextView.setText(country.getName());
+                capitalTextView.setText("Столица: " + country.getCapital());
+                populationTextView.setText("Численность населения: " + country.getPopulation());
             }
         });
     }
 }
 ```
+**Приложение после запуска отображает список стран:**
 
-**Приложение после запуска без добавления картинок:**
+<img width="463" height="820" alt="Снимок экрана 2025-11-11 120452" src="https://github.com/user-attachments/assets/d1f4b528-8719-4536-83f2-6c21ac7b0204" />
 
-<img width="480" height="822" alt="Снимок экрана 2025-11-09 123949" src="https://github.com/user-attachments/assets/485d8313-d746-430a-bf22-a262d4170fdf" />
+**При клике на страну открывается отдельный экран с подробной информацией:**
 
-**Приложение после запуска после добавления картинок:**
+<img width="452" height="812" alt="Снимок экрана 2025-11-11 120502" src="https://github.com/user-attachments/assets/959b2bf0-157e-4e2d-b837-d508a6bb84e7" />
 
-<img width="500" height="821" alt="Снимок экрана 2025-11-09 125745" src="https://github.com/user-attachments/assets/91bf8267-8775-45c9-9344-44e120671886" />
+ResultApiFragmentApp
+---
+Для работы был создан новый модуль. 
+Разработаны два фрагмента: DataFragment, который необходим для отправки данных (содержит текстовое поле и кнопку) и BottomSheetFragment, который является диалоговым фрагментом и используется для отображения полученных данных.  
 
+**DataFragment**
+```java
+public class DataFragment extends Fragment {
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_data, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        EditText editText = view.findViewById(R.id.editTextData);
+        Button button = view.findViewById(R.id.buttonOpenSheet);
+
+        button.setOnClickListener(v -> {
+            String dataToSend = editText.getText().toString();
+
+            Bundle result = new Bundle();
+            result.putString(BottomSheetFragment.BUNDLE_KEY, dataToSend);
+
+            BottomSheetFragment bottomSheet = new BottomSheetFragment();
+            bottomSheet.show(getChildFragmentManager(), "MyBottomSheetFragment");
+
+            getChildFragmentManager().setFragmentResult(BottomSheetFragment.REQUEST_KEY, result);
+        });
+    }
+}
+```
+
+**BottomSheetFragment**
+```java
+public class BottomSheetFragment extends BottomSheetDialogFragment {
+
+    public static final String REQUEST_KEY = "data_request_key";
+    public static final String BUNDLE_KEY = "data_bundle_key";
+    private TextView textViewResult;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_bottom_sheet, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        textViewResult = view.findViewById(R.id.textViewResult);
+
+        getParentFragmentManager().setFragmentResultListener(REQUEST_KEY, this, (requestKey, result) -> {
+            String data = result.getString(BUNDLE_KEY);
+            textViewResult.setText(data);
+        });
+    }
+}
+```
+**После отправки данных они отображаются внизу страницы в диалоговом окне:**
+
+<img width="452" height="820" alt="Снимок экрана 2025-11-11 123003" src="https://github.com/user-attachments/assets/f59db73c-d790-4694-b04b-8d7f921f07a5" />
 
 GreenGuide
 ---
-В проект добавлена реализация сценария получения данных о погоде с использование Retrofit интерфейса, также реализованы сценарии работы с базой данных для получения, просмотра и добавления новых сущностей. Настроена работа Glide для обработки URL-адресов и получения изображений.
+В проекте настроено использование фрагментов вместо Activity и навигация между ними. Теперь существует только MainActivity, которая является точкой входа в приложение и служит контейнером для фрагментов — внутри неё динамически меняются экраны.
 
-Для корректной работы Retrofit, базы данных и glide в gradle файлы проекта были добавлены необходимые зависимости.
+Добавлен новый фрагмент "Профиль", переход к которому осуществляется также, как и к остальным экранам через основное меню. Данный фрагмент получает экземпляр Firebase и AuthRepository и проверяет наличие пользователя. Если пользователь вошёл в систему как гость, то в профиле отображается его статус "гость". Если же он авторизовался, то в профиле отображается его статус "авторизованный" и выводится email. Также добавлена кнопка для выхода из аккаунта.
 
-**data/build.gradle.kts**
+**ProfileFragment**
 ```java
-plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.google.gms.google.services)
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
-}
-dependencies {
-    // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+public class ProfileFragment extends Fragment {
 
-    // Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    private TextView userStatusText, UserEmailText;
+    private Button btnLogout;
+    private AuthRepository authRepository;
+    private FirebaseAuth firebaseAuth;
 
-    //SQLite
-    implementation("androidx.sqlite:sqlite:2.4.0")
-    implementation("androidx.sqlite:sqlite-framework:2.4.0")
-}
-```
-
-**app/build.gradle.kts**
-```java
-dependencies {
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
-}
-```
-Добавлен новый интерфейс для получения ip адреса пользователя
-```java
-public interface IpInfoService {
-    @GET("json")
-    Call<IpInfoResponse> getIpInfo();
-}
-```
-Retrofit интерфейс OpenMeteoService:
-```java
-public interface OpenMeteoService {
-    @GET("v1/forecast")
-    Call<WeatherResponse> getCurrentWeather(
-            @Query("latitude") double latitude,
-            @Query("longitude") double longitude,
-            @Query("current_weather") boolean currentWeather
-    );
-}
-```
-На уровне domain настроены модели для ответа сервера.
-**IpInfoResponse**
-```java
-public class IpInfoResponse {
-    public String city;
-    public String country;
-    public String loc; // "lat,lon"
-}
-```
-**WeatherResponse**
-```java
-public class WeatherResponse {
-    public CurrentWeather current_weather;
-
-    public static class CurrentWeather {
-        public double temperature;
-        public double windspeed;
-    }
-}
-```
-
-В WeatherRepository добавлен интерфейс обратного вызова, который описывает, что репозиторий должен вернуть при работе асинхронно :
-```java
-public interface WeatherRepository {
-    void getWeatherByIp(RepositoryCallback<WeatherInfo> callback);
-
-    interface RepositoryCallback<T> {
-        void onSuccess(T weatherInfo);
-        void onError(String errorMessage);
-    }
-}
-```
-В реализацию данного интерфейса внесены изменения с учётом получения данных погоды по IP-адресу пользователя через два сетевых запроса с помощью Retrofit.:
-1. ipInfoService.getIpInfo() — делает запрос к API, чтобы узнать IP, город, страну и координаты (широту/долготу).Когда ответ получен — парсит координаты (lat, lon).
-2. openMeteoService.getCurrentWeather(lat, lon, true) — делает второй запрос к погодному API по этим координатам. Когда погода получена — создаётся объект WeatherInfo (город, страна, температура, скорость ветра).
-3. Результат передаётся в callback.onSuccess().
-4. Если что-то пошло не так (ошибка сети, парсинга, или пустой ответ) — вызывается callback.onError().
-
-```java
-public class WeatherRepositoryImpl implements WeatherRepository {
-    private final IpInfoService ipInfoService;
-    private final OpenMeteoService openMeteoService;
-
-    public WeatherRepositoryImpl(IpInfoService ipInfoService, OpenMeteoService openMeteoService) {
-        this.ipInfoService = ipInfoService;
-        this.openMeteoService = openMeteoService;
-    }
-
+    @Nullable
     @Override
-    public void getWeatherByIp(RepositoryCallback<WeatherInfo> callback) {
-        ipInfoService.getIpInfo().enqueue(new Callback<IpInfoResponse>() {
-            @Override
-            public void onResponse(Call<IpInfoResponse> call, Response<IpInfoResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    IpInfoResponse ipInfo = response.body();
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
-                    try {
-                        String[] locParts = ipInfo.loc.split(",");
-                        double lat = Double.parseDouble(locParts[0]);
-                        double lon = Double.parseDouble(locParts[1]);
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-                        openMeteoService.getCurrentWeather(lat, lon, true)
-                                .enqueue(new Callback<WeatherResponse>() {
-                                    @Override
-                                    public void onResponse(Call<WeatherResponse> call, Response<WeatherResponse> resp) {
-                                        if (resp.isSuccessful() && resp.body() != null) {
-                                            WeatherResponse.CurrentWeather w = resp.body().current_weather;
-                                            WeatherInfo weatherInfo = new WeatherInfo(
-                                                    ipInfo.city,
-                                                    ipInfo.country,
-                                                    w.temperature,
-                                                    w.windspeed
-                                            );
-                                            callback.onSuccess(weatherInfo);
-                                        } else {
-                                            callback.onError("Ошибка при получении погоды");
-                                        }
-                                    }
+        userStatusText = view.findViewById(R.id.userStatusText);
+        UserEmailText = view.findViewById(R.id.UserEmailText);
+        btnLogout = view.findViewById(R.id.btnLogout);
 
-                                    @Override
-                                    public void onFailure(Call<WeatherResponse> call, Throwable t) {
-                                        callback.onError("Сетевая ошибка: " + t.getMessage());
-                                    }
-                                });
-                    } catch (Exception e) {
-                        callback.onError("Ошибка при обработке координат: " + e.getMessage());
-                    }
-                } else {
-                    callback.onError("Ошибка при получении IP-информации");
-                }
-            }
+        authRepository = new AuthRepositoryImpl(requireContext());
+        firebaseAuth = FirebaseAuth.getInstance();
 
-            @Override
-            public void onFailure(Call<IpInfoResponse> call, Throwable t) {
-                callback.onError("Сетевая ошибка: " + t.getMessage());
-            }
-        });
-    }
-}
-```
-Во ViewModel добавлена реализация метода loadWeatherByIp(), который вызывает getWeatherUseCase.execute(). Результат возвращается через callback.
-```java
-public class WeatherViewModel extends ViewModel {
-    private final MutableLiveData<WeatherInfo> weatherLiveData = new MutableLiveData<>();
-    private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
-    private final GetWeatherUseCase getWeatherUseCase;
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        String userType = authRepository.getUserType();
 
-    public WeatherViewModel(GetWeatherUseCase getWeatherUseCase) {
-        this.getWeatherUseCase = getWeatherUseCase;
-    }
-
-    public LiveData<WeatherInfo> getWeatherLiveData() {
-        return weatherLiveData;
-    }
-
-    public LiveData<String> getErrorLiveData() {
-        return errorLiveData;
-    }
-
-    public void loadWeatherByIp() {
-        getWeatherUseCase.execute(new GetWeatherUseCase.Callback() {
-            @Override
-            public void onSuccess(WeatherInfo weatherInfo) {
-                weatherLiveData.postValue(weatherInfo);
-                errorLiveData.postValue(null);
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                errorLiveData.postValue(errorMessage);
-            }
-        });
-    }
-}
-```
-Фабрика теперь создаёт два клиента Retrofit: для получения координат по IP и для получения погоды по координатам.
-```java
-public class WeatherViewModelFactory implements ViewModelProvider.Factory {
-
-    @NonNull
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-
-        Retrofit ipRetrofit = new Retrofit.Builder()
-                .baseUrl("https://ipinfo.io/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        IpInfoService ipService = ipRetrofit.create(IpInfoService.class);
-
-        Retrofit weatherRetrofit = new Retrofit.Builder()
-                .baseUrl("https://api.open-meteo.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        OpenMeteoService weatherService = weatherRetrofit.create(OpenMeteoService.class);
-
-        WeatherRepository repository = new WeatherRepositoryImpl(ipService, weatherService);
-
-        GetWeatherUseCase useCase = new GetWeatherUseCase(repository);
-
-        return (T) new WeatherViewModel(useCase);
-    }
-}
-```
-WeatherActivity создаёт необходимые экземпляры, отображает данные о погоде, подписывается на LiveData, хранит данные и ошибки.
-```java
-public class WeatherActivity extends AppCompatActivity {
-
-    private WeatherViewModel viewModel;
-    private TextView cityText;
-    private TextView countryText;
-    private TextView temperatureText;
-    private TextView windSpeedText;
-    private TextView errorText;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_weather);
-
-        cityText = findViewById(R.id.cityText);
-        countryText = findViewById(R.id.countryText);
-        temperatureText = findViewById(R.id.temperatureText);
-        windSpeedText = findViewById(R.id.windSpeedText);
-        errorText = findViewById(R.id.errorText);
-
-
-        WeatherViewModelFactory factory = new WeatherViewModelFactory();
-        viewModel = new ViewModelProvider(this, factory).get(WeatherViewModel.class);
-
-
-        viewModel.getWeatherLiveData().observe(this, weatherInfo -> {
-            if (weatherInfo != null) {
-                cityText.setText("Город: " + weatherInfo.getCity());
-                countryText.setText("Страна: " + weatherInfo.getCountry());
-                temperatureText.setText(String.format("Температура: %.1f°C", weatherInfo.getTemperature()));
-                windSpeedText.setText(String.format("Ветер: %.1f м/с", weatherInfo.getWindSpeed()));
-            }
-        });
-
-
-        viewModel.getErrorLiveData().observe(this, errorMessage -> {
-            if (errorMessage != null && !errorMessage.isEmpty()) {
-                errorText.setText("Ошибка: " + errorMessage);
-            } else {
-                errorText.setText("");
-            }
-        });
-
-
-        viewModel.loadWeatherByIp();
-
-        Button backButton = findViewById(R.id.btnBackToMainMenu);
-        backButton.setOnClickListener(v -> {
-            Intent intent = new Intent(WeatherActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        });
-    }
-}
-```
-**После перехода на страницу погоды данные автоматически подгружаются и отображаются пользователю:**
-
-<img width="562" height="846" alt="Снимок экрана 2025-11-09 152630" src="https://github.com/user-attachments/assets/48727a87-5aca-4c7d-ae9b-3f645834c70b" />
-
-
-Для обработки изображений в PlantAdapter был добавлен метод с использованием Glide.
-```java
-public void bind(Plant plant) {
-            plantName.setText(plant.getName());
-            Glide.with(itemView.getContext())
-                    .load(plant.getImageUrl())
-                    .placeholder(R.drawable.ic_launcher_foreground)
-                    .into(plantImage);
+        if (currentUser != null) {
+            userStatusText.setText("Статус: авторизованный");
+            authRepository.saveUserType("authorized");
+            UserEmailText.setText("Email: " + currentUser.getEmail());
+        } else {
+            userStatusText.setText("Статус: гость");
+            authRepository.saveUserType("guest");
+            UserEmailText.setText("Email: ---");
         }
+
+        btnLogout.setOnClickListener(v -> {
+            firebaseAuth.signOut();
+            authRepository.logout();
+            Toast.makeText(requireContext(), "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show();
+
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new LoginFragment())
+                    .commit();
+        });
+
+        return view;
+    }
+}
 ```
 
-Настроена работа всех основных функций приложения. Теперь пользователь может:
-1. Просматривать список растений
-2. Просматривать информацию по конкретному растению
-3. Добавлять новые растения (только авторизованный)
-4. Просматривать данные о погоде
+**Главный экран приложения после входа:**
 
-**После первичного запуска в БД нет данных, поэтому список пуст:**
+<img width="488" height="846" alt="Снимок экрана 2025-11-11 145923" src="https://github.com/user-attachments/assets/fb283372-1c9d-47be-87f3-e2317839c841" />
 
-<img width="603" height="850" alt="Снимок экрана 2025-11-09 212634" src="https://github.com/user-attachments/assets/1f45de68-14c5-4eac-98f1-413f330e5154" />
+**Экран профиля:**
 
-**Добавление нового растения:**
+<img width="499" height="845" alt="Снимок экрана 2025-11-11 145941" src="https://github.com/user-attachments/assets/a8775013-5bde-4cad-aee9-c981b3708992" />
 
-<img width="477" height="854" alt="Снимок экрана 2025-11-09 215228" src="https://github.com/user-attachments/assets/e595198f-024c-4a1a-9d6e-638bea7e02b2" />
+**Список растений как и раньше отображается корректно:**
+<img width="499" height="821" alt="Снимок экрана 2025-11-11 134619" src="https://github.com/user-attachments/assets/26e79432-305a-4081-a0f8-24a2953e6341" />
 
-**Добавленное растение появилось в списке:**
+**Просмотр информации о растении работает корректно:**
 
-<img width="502" height="849" alt="Снимок экрана 2025-11-09 215238" src="https://github.com/user-attachments/assets/eb1993b6-683a-49de-b2d8-d65109a2e3ea" />
+<img width="470" height="819" alt="Снимок экрана 2025-11-11 134626" src="https://github.com/user-attachments/assets/a8999dd9-4b08-43c8-9a91-79bcbb2e15bb" />
 
-**Просмотр информации по конкретному растению:**
+**Страница для добавление нового растения работает корректно:**
 
-<img width="478" height="849" alt="Снимок экрана 2025-11-09 215253" src="https://github.com/user-attachments/assets/cd79cc28-da0d-49d0-99e5-7c85db14ba56" />
+<img width="465" height="821" alt="Снимок экрана 2025-11-11 134711" src="https://github.com/user-attachments/assets/4d0a8c9f-8f3b-42a5-b3d8-8e926411ff66" />
 
+**Страница для просмотра погоды работает корректно:**
 
-**Просмотр списка растений от лица гостя (без возможности добавлять новые):**
+<img width="508" height="817" alt="Снимок экрана 2025-11-11 134602" src="https://github.com/user-attachments/assets/b79c4b7e-f48b-4751-96bc-6166ae13f168" />
 
-<img width="493" height="850" alt="Снимок экрана 2025-11-09 215951" src="https://github.com/user-attachments/assets/0fade782-a6d1-48f0-9d44-030b00591ab6" />
+**Выход из профиля:**
 
+<img width="493" height="847" alt="Снимок экрана 2025-11-11 145950" src="https://github.com/user-attachments/assets/2aa3daac-5682-41c0-a20e-32af38ffb7df" />
