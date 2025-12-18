@@ -4,75 +4,49 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import ru.mirea.krasikova.greenguide.R;
-import ru.mirea.krasikova.data.storage.SharedPrefsUserStorage;
-import ru.mirea.krasikova.domain.model.Plant;
+import ru.mirea.krasikova.greenguide.databinding.FragmentPlantListBinding;
 
 public class PlantListFragment extends Fragment {
 
+    private FragmentPlantListBinding binding;
     private PlantListViewModel viewModel;
     private PlantAdapter adapter;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_plant_list, container, false);
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
+        binding = FragmentPlantListBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
-        SharedPrefsUserStorage userStorage = new SharedPrefsUserStorage(requireContext());
-        String userType = userStorage.getUserType();
-
-        RecyclerView recyclerView = view.findViewById(R.id.plantsRecycler);
         adapter = new PlantAdapter();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(adapter);
+        binding.plantsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.plantsRecycler.setAdapter(adapter);
 
         PlantListViewModelFactory factory = new PlantListViewModelFactory(requireContext());
         viewModel = new ViewModelProvider(this, factory).get(PlantListViewModel.class);
 
-        // наблюдаем за обновлениями данных
-        viewModel.getPlantsLiveData().observe(getViewLifecycleOwner(), plants -> {
-            adapter.submitList(plants);
-        });
+        viewModel.getPlantsLiveData().observe(getViewLifecycleOwner(), plants -> adapter.submitList(plants));
 
-        // переход к деталям растения
         adapter.setOnItemClickListener(plant -> {
-            Fragment detailFragment = PlantDetailFragment.newInstance(plant.getId());
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, detailFragment)
-                    .addToBackStack(null)
-                    .commit();
-        });
+            Bundle args = new Bundle();
+            args.putInt("plant_id", plant.getId());
 
-        // кнопка добавления
-        FloatingActionButton addButton = view.findViewById(R.id.addPlantButton);
-        if (!userType.equals("authorized")) {
-            addButton.setVisibility(View.GONE);
-        }
-
-        addButton.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new AddPlantFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
-
-        // кнопка назад
-        Button backButton = view.findViewById(R.id.btnBackToMainMenu);
-        backButton.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().popBackStack();
+            NavController navController = NavHostFragment.findNavController(this);
+            navController.navigate(R.id.action_list_to_detail, args);
         });
 
         return view;
@@ -82,5 +56,11 @@ public class PlantListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         viewModel.loadPlants();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

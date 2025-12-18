@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/loginFragment">
+
+    <!-- Экран авторизации -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="ru.mirea.krasikova.greenguide.auth.LoginFragment" >
+        <action
+            android:id="@+id/action_login_to_plantList"
+            app:destination="@id/plantListFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+    </fragment>
+
+    <!-- Экран регистрации -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="ru.mirea.krasikova.greenguide.auth.RegisterFragment" >
+        <action
+            android:id="@+id/action_register_to_plantList"
+            app:destination="@id/plantListFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <!-- Список растений -->
+    <fragment
+        android:id="@+id/plantListFragment"
+        android:name="ru.mirea.krasikova.greenguide.plants.PlantListFragment">
+        <action
+            android:id="@+id/action_list_to_detail"
+            app:destination="@id/plantDetailFragment"/>
+    </fragment>
+
+    <!-- Детали растения -->
+    <fragment
+        android:id="@+id/plantDetailFragment"
+        android:name="ru.mirea.krasikova.greenguide.plants.PlantDetailFragment">
+        <argument
+            android:name="plant_id"
+            app:argType="integer"/>
+    </fragment>
+
+    <!-- Добавление растения -->
+    <fragment
+        android:id="@+id/addPlantFragment"
+        android:name="ru.mirea.krasikova.greenguide.plants.AddPlantFragment" />
+
+    <!-- Погода -->
+    <fragment
+        android:id="@+id/weatherFragment"
+        android:name="ru.mirea.krasikova.greenguide.weather.WeatherFragment"/>
+
+    <!-- Профиль -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="ru.mirea.krasikova.greenguide.ProfileFragment" />
+
+</navigation>

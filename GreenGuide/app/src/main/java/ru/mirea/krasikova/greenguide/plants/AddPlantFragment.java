@@ -5,21 +5,20 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
-import ru.mirea.krasikova.greenguide.R;
+import ru.mirea.krasikova.greenguide.databinding.FragmentAddPlantBinding;
 
 public class AddPlantFragment extends Fragment {
 
-    private EditText nameInput, descriptionInput, imageUrlInput;
-    private Button saveButton, cancelButton;
+    private FragmentAddPlantBinding binding;
     private AddPlantViewModel viewModel;
 
     @Nullable
@@ -27,21 +26,19 @@ public class AddPlantFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_add_plant, container, false);
 
-        nameInput = view.findViewById(R.id.inputPlantName);
-        descriptionInput = view.findViewById(R.id.inputPlantDescription);
-        imageUrlInput = view.findViewById(R.id.inputPlantImageUrl);
-        saveButton = view.findViewById(R.id.btnSavePlant);
-        cancelButton = view.findViewById(R.id.btnCancel);
+        binding = FragmentAddPlantBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
         AddPlantViewModelFactory factory = new AddPlantViewModelFactory(requireContext());
         viewModel = new ViewModelProvider(this, factory).get(AddPlantViewModel.class);
 
-        saveButton.setOnClickListener(v -> {
-            String name = nameInput.getText().toString().trim();
-            String description = descriptionInput.getText().toString().trim();
-            String imageUrl = imageUrlInput.getText().toString().trim();
+        NavController navController = NavHostFragment.findNavController(this);
+
+        binding.btnSavePlant.setOnClickListener(v -> {
+            String name = binding.inputPlantName.getText().toString().trim();
+            String description = binding.inputPlantDescription.getText().toString().trim();
+            String imageUrl = binding.inputPlantImageUrl.getText().toString().trim();
 
             if (TextUtils.isEmpty(name) || TextUtils.isEmpty(description)) {
                 Toast.makeText(requireContext(), "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show();
@@ -49,17 +46,18 @@ public class AddPlantFragment extends Fragment {
             }
 
             viewModel.addPlant(name, description, imageUrl);
-
             Toast.makeText(requireContext(), "Растение добавлено!", Toast.LENGTH_SHORT).show();
-
-            // Возврат к списку
-            requireActivity().getSupportFragmentManager().popBackStack();
+            navController.navigateUp();
         });
 
-        cancelButton.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().popBackStack();
-        });
+        binding.btnCancel.setOnClickListener(v -> navController.navigateUp());
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
