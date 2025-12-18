@@ -1,431 +1,270 @@
-Отчёт по 6 практической работе
+Отчёт по 7 практической работе
 ----
-В рамках данной практической работы был изучен принцип работы с фрагментами (Fragment), который является важным компонентом Android-приложений. 
+В рамках данной практической работы были изучены принципы работы с навигацией в разработке Android-приложений.
 
-FragmentApp
+BottomNavigationApp - навигация через нижнюю панель
 ---
-Для работы был создан новый модуль. В gradle файл модуля добавлена новая зависимость для работы с фрагментами.
-```java
-implementation("androidx.fragment:fragment:1.8.9")
+1. Для работы был создан новый модуль. В gradle файл модуля добавлены зависимости, необходимые для работы с навигацией, также подключен ViewBinding.
+2. Созданы три фрагмента: HomeFragment, который выводит приветствие, InfoFragment, который содержит информацию и ProfileFragment, который выводит личные данные (имя, фамилию и номер группы). Для них настроены файлы разметки.
+3. Создан граф навигации mobile_navigation.xml, который объединяет данные фрагменты. ID фрагментов в графе синхронизированы с ID пунктов меню для автоматической навигации.
+
+```xml
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="ru.mirea.krasikova.bottomnavigationapp.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_info"
+        android:name="ru.mirea.krasikova.bottomnavigationapp.InfoFragment"
+        android:label="Info"
+        tools:layout="@layout/fragment_info" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="ru.mirea.krasikova.bottomnavigationapp.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
+</navigation>
 ```
-Далее был создан фрагмент, который принимает номер по списку и отображает его в TextView.
+
+4. В MainActivity инициализирован NavController для навигации между фрагментами, к которому подключён BottomNavigationView.
 ```JAVA
-public class BlankFragment extends Fragment {
+public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding;
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
-        Log.d(BlankFragment.class.getSimpleName(), "onCreateView");
-        View view   =  inflater.inflate(R.layout.fragment_blank,  container, false);
-        return  view;
-    }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Инициализация View Binding
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        int numberStudent = requireArguments().getInt("my_number_student", 0);
-        Log.d(BlankFragment.class.getSimpleName(), String.valueOf(numberStudent));
-        TextView tv = view.findViewById(R.id.textNumber);
-        tv.setText("Номер по списку: " + numberStudent);
+        // NavController для навигации между фрагментами
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+
+        // Подключение BottomNavigationView к NavController
+        NavigationUI.setupWithNavController(binding.navView, navController);
     }
 }
 ```
-Далее в MainActivity была реализована логика добавления данного фрагмента с использованием метода newInstance(). Данные передаются с помощью Bundle.
+
+5. Настроены кастомные цвета для темы.
+
+**Экран главной страницы:**
+
+<img width="428" height="816" alt="Снимок экрана 2025-12-18 195231" src="https://github.com/user-attachments/assets/441cd2b2-4205-4cb3-8a3c-1b47ca13f53f" />
+
+**Экран страницы с информацией:**
+
+<img width="428" height="820" alt="Снимок экрана 2025-12-18 195400" src="https://github.com/user-attachments/assets/7134dacc-76fb-4cc2-9079-045eb639a2f1" />
+
+**Экран профиля:**
+
+<img width="434" height="812" alt="Снимок экрана 2025-12-18 195408" src="https://github.com/user-attachments/assets/cb56d4d8-4c9a-4842-af02-da9dedb61049" />
+
+
+NavigationDrawerApp - навигация через шторку
+---
+1. Для работы был создан новый модуль. В gradle файл модуля добавлены зависимости, необходимые для работы с навигацией, также подключен ViewBinding.
+2. Аналогично, как в прошлом модуле созданы три фрагмента и настроены файлы разметки.
+3. Настроены файлы nav_header_main.xml, content_main.xml, app_bar_main.xml и activity_main.xml.
+4. В MainActivity инициализирован компонент AppBarConfiguration, который хранит информацию о верхнеуровневых экранах. Toolbar подключён как ActionBar. Инициализирован NavController, который управляет переходами между фрагментами.
+5. Настроены кастомные цвета для темы
+
+**Навигационная панель-шторка в приложении:**
+
+<img width="461" height="818" alt="Снимок экрана 2025-12-18 210945" src="https://github.com/user-attachments/assets/3c7f3b6d-2b5f-423e-adc1-25dd1bc3403a" />
+
+**Экран главной страницы:**
+
+<img width="430" height="815" alt="Снимок экрана 2025-12-18 210954" src="https://github.com/user-attachments/assets/8e9bd83e-9c4b-4f5b-aae1-abb398ad8374" />
+
+**Экран страницы с информацией:**
+
+<img width="438" height="808" alt="Снимок экрана 2025-12-18 211004" src="https://github.com/user-attachments/assets/8e958a9c-b7d0-40da-932a-da5ecdd6c484" />
+
+**Экран профиля:**
+
+<img width="455" height="813" alt="Снимок экрана 2025-12-18 211016" src="https://github.com/user-attachments/assets/498cc5f5-666a-40e9-8ca1-1a801ea76595" />
+
+
+GreenGuide
+---
+В проекте настроено использование навигации Bottom Navigation.
+1. В gradle файл модуля добавлены зависимости, необходимые для работы с навигацией, также подключен ViewBinding.
+2. Добавлено меню навигации bottom_nav_menu.xml, которое содержит 4 пункта: "профиль", "растения", "добавить" и "погода". ID пунктов меню синхронизированы с ID фрагментов в графе для автоматической навигации.
+
+```xml
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/profileFragment"
+        android:title="Профиль"
+        android:icon="@drawable/ic_profile"/>
+
+    <item
+        android:id="@+id/plantListFragment"
+        android:title="Растения"
+        android:icon="@drawable/ic_plant"/>
+
+    <item
+        android:id="@+id/addPlantFragment"
+        android:title="Добавить"
+        android:icon="@drawable/ic_add"/>
+
+    <item
+        android:id="@+id/weatherFragment"
+        android:title="Погода"
+        android:icon="@drawable/ic_weather"/>
+
+</menu>
+```
+
+4. Добавлен навигационный граф nav_graph_main.xml, описывающий логику переходов между фрагментами в приложении.
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/loginFragment">
+
+    <!-- Экран авторизации -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="ru.mirea.krasikova.greenguide.auth.LoginFragment" >
+        <action
+            android:id="@+id/action_login_to_plantList"
+            app:destination="@id/plantListFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+    </fragment>
+
+    <!-- Экран регистрации -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="ru.mirea.krasikova.greenguide.auth.RegisterFragment" >
+        <action
+            android:id="@+id/action_register_to_plantList"
+            app:destination="@id/plantListFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <!-- Список растений -->
+    <fragment
+        android:id="@+id/plantListFragment"
+        android:name="ru.mirea.krasikova.greenguide.plants.PlantListFragment">
+        <action
+            android:id="@+id/action_list_to_detail"
+            app:destination="@id/plantDetailFragment"/>
+    </fragment>
+
+    <!-- Детали растения -->
+    <fragment
+        android:id="@+id/plantDetailFragment"
+        android:name="ru.mirea.krasikova.greenguide.plants.PlantDetailFragment">
+        <argument
+            android:name="plant_id"
+            app:argType="integer"/>
+    </fragment>
+
+    <!-- Добавление растения -->
+    <fragment
+        android:id="@+id/addPlantFragment"
+        android:name="ru.mirea.krasikova.greenguide.plants.AddPlantFragment" />
+
+    <!-- Погода -->
+    <fragment
+        android:id="@+id/weatherFragment"
+        android:name="ru.mirea.krasikova.greenguide.weather.WeatherFragment"/>
+
+    <!-- Профиль -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="ru.mirea.krasikova.greenguide.ProfileFragment" />
+
+</navigation>
+```
+
+5. Код фрагментов переписан с использованием navController вместо FragmentManager.
+6. В MainActivity инициализирован компонент NavController, который контролирует переход между фрагментами, к нему подключен BottomNavigationView. Также осуществляется проверка текущего фрагмента, чтобы скрыть BottomNavigation для фрагментов авторизации и регистрации. Проверяется тип пользователя авторизованный/гость, чтобы скрыть/предоставить доступ к фрагменту для добавления нового растения.
 
 ```java
 public class MainActivity extends AppCompatActivity {
 
-    @Override protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        if (savedInstanceState == null) {
-            Bundle args = new Bundle();
-            args.putInt("my_number_student", 15);
-
-            getSupportFragmentManager().beginTransaction()
-                    .setReorderingAllowed(true)
-                    .add(R.id.fragment_container_view, BlankFragment.class, args)
-                    .commit();
-        }
-    }
-}
-```
-
-**Приложение после запуска работает корректно:**
-
-<img width="451" height="815" alt="Снимок экрана 2025-11-11 112730" src="https://github.com/user-attachments/assets/23f5345a-03a4-410f-b7d9-d8291232e043" />
-
-FragmentManagerApp
----
-Для работы был создан новый модуль. 
-Разработаны два фрагмента: HeaderFragment, который содержит список стран и DetailsFragment, который необходим для отображения информации о выбранной стране.
-
-**HeaderFragment**
-```java
-public class HeaderFragment extends Fragment {
-    private SharedViewModel viewModel;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_header, container, false);
-    }
-
-    @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-
-        ListView listView = view.findViewById(R.id.listView);
-
-        String[] countries = {"Венгрия", "Великобритания", "Германия", "Испания", "Канада", "Марокко",
-                "Норвегия", "Португалия", "Россия", "Турция", "ОАЭ", "Уругвай", "Франция"};
-        listView.setAdapter(new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_list_item_1, countries));
-
-        listView.setOnItemClickListener((AdapterView<?> parent, View v, int pos, long id) ->
-                viewModel.setSomeValue(countries[pos]));
-    }
-}
-```
-**DetailsFragment**
-```java
-public class DetailsFragment extends Fragment {
-    private SharedViewModel viewModel;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_details, container, false);
-    }
-
-    @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        TextView tv = view.findViewById(R.id.textDetails);
-
-        viewModel.getSomeValue().observe(getViewLifecycleOwner(), data -> {
-            Log.d(DetailsFragment.class.getSimpleName(), data);
-            tv.setText("Вы выбрали страну: " + data);
-        });
-    }
-}
-```
-Связь между данными фрагментами реализована при помощи **SharedViewModel**, экземпляр которой создаётся в обоих классах.
-```java
-public class SharedViewModel extends ViewModel {
-    private final MutableLiveData<String> selectedItem = new MutableLiveData<>();
-    public void setSomeValue(String item) {
-        selectedItem.setValue(item);
-    }
-    public LiveData<String> getSomeValue() {
-        return selectedItem;
-    }
-}
-```
-
-**Приложение после запуска отображает список стран:**
-
-<img width="463" height="818" alt="Снимок экрана 2025-11-11 112554" src="https://github.com/user-attachments/assets/6da48573-ce70-4f64-8868-92405b99e49d" />
-
-
-**При клике на страну в нижней части экрана выводится её название:**
-
-<img width="448" height="823" alt="Снимок экрана 2025-11-11 112650" src="https://github.com/user-attachments/assets/28e9b87f-e228-4b88-8c44-0810078ee8cf" />
-
-Далее реализация этого задания была немного изменена. Была создана отдельная модель, которая описывает поля: страна, столица и численность населения.
-```java
-public class Country {
-    private final String name;
-    private final String capital;
-    private final int population;
-
-    public Country(String name, String capital, int population) {
-        this.name = name;
-        this.capital = capital;
-        this.population = population;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getCapital() {
-        return capital;
-    }
-
-    public int getPopulation() {
-        return population;
-    }
+    private ActivityMainBinding binding;
+    private AuthRepository authRepository;
 
     @Override
-    public String toString() {
-        return name;
-    }
-}
-```
-CountryViewModel для передачи данных между фрагментами:
-```java
-public class CountryViewModel extends ViewModel {
-    private final MutableLiveData<Country> selectedCountry = new MutableLiveData<>();
-
-    public void selectCountry(Country country) {
-        selectedCountry.setValue(country);
-    }
-
-    public LiveData<Country> getSelectedCountry() {
-        return selectedCountry;
-    }
-}
-```
-В HeaderFragment теперь не создаётся строковый массив данных, а создаётся экземпляр класса Country в формате списка, который заполняется соответствующими данными.
-```java
-public class HeaderFragment extends Fragment {
-
-    private CountryViewModel viewModel;
-    private List<Country> countries;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(CountryViewModel.class);
-    }
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_header, container, false);
-    }
+        authRepository = new AuthRepositoryImpl(this);
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
 
-        countries = new ArrayList<>();
-        countries.add(new Country("Венгрия", "Будапешт", 9603634 ));
-        countries.add(new Country("Германия", "Берлин", 83491249));
-        countries.add(new Country("Испания", "Мадрид", 49315949));
-        countries.add(new Country("Россия", "Москва", 146119928));
-        countries.add(new Country("Португалия", "Лиссабон", 10467366));
-        countries.add(new Country("Франция", "Париж", 67421162));
+        // Подключение BottomNavigationView к NavController
+        NavigationUI.setupWithNavController(binding.bottomNavigation, navController);
 
-        ListView listView = view.findViewById(R.id.countriesListView);
-
-        ArrayAdapter<Country> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_list_item_1,
-                countries
-        );
-        listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener((parent, itemView, position, id) -> {
-            Country selectedMovie = countries.get(position);
-
-            viewModel.selectCountry(selectedMovie);
-
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container_view, DetailsFragment.class, null)
-                    .setReorderingAllowed(true)
-                    .addToBackStack(null)
-                    .commit();
-        });
-    }
-}
-```
-**DetailsFragment**
-```java
-public class DetailsFragment extends Fragment {
-
-    private CountryViewModel viewModel;
-    private TextView nameTextView;
-    private TextView capitalTextView;
-    private TextView populationTextView;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        viewModel = new ViewModelProvider(requireActivity()).get(CountryViewModel.class);
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_details, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        nameTextView = view.findViewById(R.id.nameTextView);
-        capitalTextView = view.findViewById(R.id.capitalTextView);
-        populationTextView = view.findViewById(R.id.populationTextView);
-
-        viewModel.getSelectedCountry().observe(getViewLifecycleOwner(), country -> {
-            if (country != null) {
-                nameTextView.setText(country.getName());
-                capitalTextView.setText("Столица: " + country.getCapital());
-                populationTextView.setText("Численность населения: " + country.getPopulation());
+        // Проверка текущего фрагмента, чтобы скрыть BottomNavigation для авторизации и регистрации
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            int destId = destination.getId();
+            if (destId == R.id.loginFragment || destId == R.id.registerFragment) {
+                binding.bottomNavigation.setVisibility(View.GONE);
+            } else {
+                binding.bottomNavigation.setVisibility(View.VISIBLE);
             }
         });
-    }
-}
-```
-**Приложение после запуска отображает список стран:**
 
-<img width="463" height="820" alt="Снимок экрана 2025-11-11 120452" src="https://github.com/user-attachments/assets/d1f4b528-8719-4536-83f2-6c21ac7b0204" />
-
-**При клике на страну открывается отдельный экран с подробной информацией:**
-
-<img width="452" height="812" alt="Снимок экрана 2025-11-11 120502" src="https://github.com/user-attachments/assets/959b2bf0-157e-4e2d-b837-d508a6bb84e7" />
-
-ResultApiFragmentApp
----
-Для работы был создан новый модуль. 
-Разработаны два фрагмента: DataFragment, который необходим для отправки данных (содержит текстовое поле и кнопку) и BottomSheetFragment, который является диалоговым фрагментом и используется для отображения полученных данных.  
-
-**DataFragment**
-```java
-public class DataFragment extends Fragment {
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_data, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        EditText editText = view.findViewById(R.id.editTextData);
-        Button button = view.findViewById(R.id.buttonOpenSheet);
-
-        button.setOnClickListener(v -> {
-            String dataToSend = editText.getText().toString();
-
-            Bundle result = new Bundle();
-            result.putString(BottomSheetFragment.BUNDLE_KEY, dataToSend);
-
-            BottomSheetFragment bottomSheet = new BottomSheetFragment();
-            bottomSheet.show(getChildFragmentManager(), "MyBottomSheetFragment");
-
-            getChildFragmentManager().setFragmentResult(BottomSheetFragment.REQUEST_KEY, result);
+        // Проверка доступа к AddPlantFragment
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.addPlantFragment) {
+                String userType = authRepository.getUserType();
+                if (!"authorized".equals(userType)) {
+                    android.widget.Toast.makeText(this,
+                            "Только авторизованные пользователи могут добавлять растения",
+                            android.widget.Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            }
+            NavigationUI.onNavDestinationSelected(item, navController);
+            return true;
         });
     }
 }
 ```
 
-**BottomSheetFragment**
-```java
-public class BottomSheetFragment extends BottomSheetDialogFragment {
+**После авторизации в приложении открывается список растений**
 
-    public static final String REQUEST_KEY = "data_request_key";
-    public static final String BUNDLE_KEY = "data_bundle_key";
-    private TextView textViewResult;
+<img width="473" height="846" alt="Снимок экрана 2025-12-18 172031" src="https://github.com/user-attachments/assets/33453c67-3641-4a06-a3c4-7aec31b58f77" />
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_bottom_sheet, container, false);
-    }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        textViewResult = view.findViewById(R.id.textViewResult);
+**У гостевого пользователя отсутствует возможность перейти во вкладку "добавить"**
 
-        getParentFragmentManager().setFragmentResultListener(REQUEST_KEY, this, (requestKey, result) -> {
-            String data = result.getString(BUNDLE_KEY);
-            textViewResult.setText(data);
-        });
-    }
-}
-```
-**После отправки данных они отображаются внизу страницы в диалоговом окне:**
+<img width="472" height="845" alt="Снимок экрана 2025-12-18 172043" src="https://github.com/user-attachments/assets/98a74c56-a375-4ea3-907d-8555d9138ab3" />
 
-<img width="452" height="820" alt="Снимок экрана 2025-11-11 123003" src="https://github.com/user-attachments/assets/f59db73c-d790-4694-b04b-8d7f921f07a5" />
 
-GreenGuide
----
-В проекте настроено использование фрагментов вместо Activity и навигация между ними. Теперь существует только MainActivity, которая является точкой входа в приложение и служит контейнером для фрагментов — внутри неё динамически меняются экраны.
+**Страница для просмотра погоды:**
 
-Добавлен новый фрагмент "Профиль", переход к которому осуществляется также, как и к остальным экранам через основное меню. Данный фрагмент получает экземпляр Firebase и AuthRepository и проверяет наличие пользователя. Если пользователь вошёл в систему как гость, то в профиле отображается его статус "гость". Если же он авторизовался, то в профиле отображается его статус "авторизованный" и выводится email. Также добавлена кнопка для выхода из аккаунта.
+<img width="505" height="849" alt="Снимок экрана 2025-12-18 172058" src="https://github.com/user-attachments/assets/2b5ac458-c6ed-40a3-bc27-3b750fa23a11" />
 
-**ProfileFragment**
-```java
-public class ProfileFragment extends Fragment {
 
-    private TextView userStatusText, UserEmailText;
-    private Button btnLogout;
-    private AuthRepository authRepository;
-    private FirebaseAuth firebaseAuth;
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-
-        userStatusText = view.findViewById(R.id.userStatusText);
-        UserEmailText = view.findViewById(R.id.UserEmailText);
-        btnLogout = view.findViewById(R.id.btnLogout);
-
-        authRepository = new AuthRepositoryImpl(requireContext());
-        firebaseAuth = FirebaseAuth.getInstance();
-
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-        String userType = authRepository.getUserType();
-
-        if (currentUser != null) {
-            userStatusText.setText("Статус: авторизованный");
-            authRepository.saveUserType("authorized");
-            UserEmailText.setText("Email: " + currentUser.getEmail());
-        } else {
-            userStatusText.setText("Статус: гость");
-            authRepository.saveUserType("guest");
-            UserEmailText.setText("Email: ---");
-        }
-
-        btnLogout.setOnClickListener(v -> {
-            firebaseAuth.signOut();
-            authRepository.logout();
-            Toast.makeText(requireContext(), "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show();
-
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new LoginFragment())
-                    .commit();
-        });
-
-        return view;
-    }
-}
-```
-
-**Главный экран приложения после входа:**
-
-<img width="488" height="846" alt="Снимок экрана 2025-11-11 145923" src="https://github.com/user-attachments/assets/fb283372-1c9d-47be-87f3-e2317839c841" />
-
-**Экран профиля:**
-
-<img width="499" height="845" alt="Снимок экрана 2025-11-11 145941" src="https://github.com/user-attachments/assets/a8775013-5bde-4cad-aee9-c981b3708992" />
-
-**Список растений как и раньше отображается корректно:**
-<img width="499" height="821" alt="Снимок экрана 2025-11-11 134619" src="https://github.com/user-attachments/assets/26e79432-305a-4081-a0f8-24a2953e6341" />
-
-**Просмотр информации о растении работает корректно:**
-
-<img width="470" height="819" alt="Снимок экрана 2025-11-11 134626" src="https://github.com/user-attachments/assets/a8999dd9-4b08-43c8-9a91-79bcbb2e15bb" />
-
-**Страница для добавление нового растения работает корректно:**
-
-<img width="465" height="821" alt="Снимок экрана 2025-11-11 134711" src="https://github.com/user-attachments/assets/4d0a8c9f-8f3b-42a5-b3d8-8e926411ff66" />
-
-**Страница для просмотра погоды работает корректно:**
-
-<img width="508" height="817" alt="Снимок экрана 2025-11-11 134602" src="https://github.com/user-attachments/assets/b79c4b7e-f48b-4751-96bc-6166ae13f168" />
-
-**Выход из профиля:**
-
-<img width="493" height="847" alt="Снимок экрана 2025-11-11 145950" src="https://github.com/user-attachments/assets/2aa3daac-5682-41c0-a20e-32af38ffb7df" />
